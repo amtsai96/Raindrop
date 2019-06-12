@@ -5,8 +5,8 @@
 		_MainTex("Texture", 2D) = "white" {}
 		_size("Size", float) = 5
 		_T("Time" , float) = 1
-		_Distortion("Distortion",range(-5,5)) = 1
-		_Blur("Blur", range(0,1)) = 1
+		_Distortion("Distortion",range(-5,5)) = 3
+		_Blur("Blur", range(0,1)) = 0.88
 	}
 		SubShader
 		{
