@@ -7,6 +7,7 @@
 		_T("Time" , float) = 1
 		_Distortion("Distortion",range(-5,5)) = 3
 		_Blur("Blur", range(0,1)) = 0.88
+		_blackmode("Black Mode", int) = 1
 	}
 		SubShader
 		{
@@ -38,7 +39,7 @@
 
 				sampler2D _MainTex;
 				float4 _MainTex_ST;
-				float _size, _T, _Distortion, _Blur;
+				float _size, _T, _Distortion, _Blur, _blackmode;
 				v2f vert(appdata v)
 				{
 					v2f o;
@@ -54,9 +55,9 @@
 				}
 
 				float3 Layer(float2 newUV, float t){
-					float2 aspect = float2(1.2, 1);//4, 1);
-					float2 aspect2 = float2(1, 1);//2, 1);
-					float2 uv = newUV * _size * aspect;
+					// float2 aspect = float2(1.2, 1);//4, 1);
+					// float2 aspect2 = float2(1, 1);//2, 1);
+					float2 uv = newUV; //* _size * aspect;
 					uv.y += t * .25;
 					float2 gv = frac(uv) - .5;
 					float2 id = floor(uv);
@@ -70,9 +71,11 @@
 
 					float y = -sin(t + sin(t + sin(t) * .5)) * .45;
 					y -= (gv.x - x) * (gv.x - x);
-					float2 droppos = (gv - float2(x,y)) / aspect2 * .7;
+					// float2 droppos = (gv - float2(x,y)) / aspect2 * .7;
+					float2 droppos = (gv - float2(x,y)) * .7;
 					float drop = S(.05, .03, length(droppos));
-					float2 trailpos = (gv - float2(x, t * .25)) / aspect2 * .8;
+					// float2 trailpos = (gv - float2(x, t * .25)) / aspect2 * .8;
+					float2 trailpos = (gv - float2(x, t * .25)) * .8;
 					trailpos.y = (frac(trailpos.y * 8) - .5) / 8;
 					float trail = S(.03, .01, length(trailpos));
 					float fogtrail = S(-.05, .05, droppos.y);
@@ -103,14 +106,52 @@
 					//UNITY_APPLY_FOG(i.fogCoord, col);
 					float t = fmod(_Time.y + _T,7200);
 					float4 col = 0;
+					int black = _blackmode;
+					if (black == 1){
+						float2 newUV = i.uv;
+						float2 uv = newUV; //* _size * aspect;
+						uv.y += t * .25;
+						float2 gv = frac(uv) - .5;
+						float2 id = floor(uv);
 
-					float3 drops = Layer(i.uv, t);
-					drops += Layer(i.uv * 1.23 + 7.54, t);
-					drops += Layer(i.uv * 1.23 * 2 + 7.54, t);
+						float n = N21(id);
+						t += n * 6.2831;
 
-					float blur = _Blur * 7 * (1 - drops.z);
-					// col = tex2D(_MainTex, i.uv + offs * _Distortion);
-					col = tex2Dlod(_MainTex, float4(i.uv + drops.xy * _Distortion, 0, blur));
+						float w = newUV.y * 10;
+						float x = (n - .5) * .8;//sin(3 * w)*pow(sin(w), 6)*.45;
+						x += (.4 - abs(x)) * sin(3 * w) * pow(sin(w), 6) * .45;
+
+						float y = -sin(t + sin(t + sin(t) * .5)) * .45;
+						y -= (gv.x - x) * (gv.x - x);
+						// float2 droppos = (gv - float2(x,y)) / aspect2 * .7;
+						float2 droppos = (gv - float2(x,y)) * .7;
+						float drop = S(.05, .03, length(droppos));
+						// float2 trailpos = (gv - float2(x, t * .25)) / aspect2 * .8;
+						float2 trailpos = (gv - float2(x, t * .25)) * .8;
+						trailpos.y = (frac(trailpos.y * 8) - .5) / 8;
+						float trail = S(.03, .01, length(trailpos));
+						float fogtrail = S(-.05, .05, droppos.y);
+						fogtrail *= S(.5, y, gv.y);
+						trail *= fogtrail;
+						fogtrail *= S(.05, .04, abs(droppos.x));
+
+						col += fogtrail * .5;
+						col += trail;
+						col += drop;
+						//col.rg = gv;
+
+					// float2 offs = drop * droppos + trail * trailpos;
+					}
+					else{
+						float3 drops = Layer(i.uv, t);
+						drops += Layer(i.uv * 1.23 + 7.54, t);
+						drops += Layer(i.uv * 1.23 * 2 + 7.54, t);
+
+						float blur = _Blur * 7 * (1 - drops.z);
+						//col = tex2D(_MainTex, i.uv + offs * _Distortion);
+						col = tex2Dlod(_MainTex, float4(i.uv + drops.xy * _Distortion, 0, blur));
+					}
+
 					return col;
 				}
 				ENDCG
