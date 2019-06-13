@@ -11,9 +11,10 @@
 	}
 		SubShader
 		{
-			Tags { "RenderType" = "Opaque" }
+			Tags { "RenderType" = "Opaque" "Queue"="Transparent"}
 			LOD 100
 
+				GrabPass{"_GrabTexture"}
 			Pass
 			{
 				CGPROGRAM
@@ -33,11 +34,12 @@
 				struct v2f
 				{
 					float2 uv : TEXCOORD0;
+					float4 grabUv : TEXCOORD1;
 					UNITY_FOG_COORDS(1)
 					float4 vertex : SV_POSITION;
 				};
 
-				sampler2D _MainTex;
+				sampler2D _MainTex, _GrabTexture;
 				float4 _MainTex_ST;
 				float _size, _T, _Distortion, _Blur, _blackmode;
 				v2f vert(appdata v)
@@ -45,6 +47,7 @@
 					v2f o;
 					o.vertex = UnityObjectToClipPos(v.vertex);
 					o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+					o.grabUv = UNITY_PROJ_COORD(ComputeGrabScreenPos(o.vertex));
 					UNITY_TRANSFER_FOG(o,o.vertex);
 					return o;
 				}
@@ -149,7 +152,10 @@
 
 						float blur = _Blur * 7 * (1 - drops.z);
 						//col = tex2D(_MainTex, i.uv + offs * _Distortion);
-						col = tex2Dlod(_MainTex, float4(i.uv + drops.xy * _Distortion, 0, blur));
+						//col = tex2Dlod(_MainTex, float4(i.uv + drops.xy * _Distortion, 0, blur));
+						// col = tex2Dproj(_GrabTexture, i.grabUv);
+						float2 projUv = i.grabUv.xy / i.grabUv.w;
+						col = tex2D(_GrabTexture, projUv);
 					}
 
 					return col;
