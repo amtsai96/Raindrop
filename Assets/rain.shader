@@ -151,14 +151,32 @@
 						drops += Layer(i.uv * 1.23 * 2 + 7.54, t);
 
 						float blur = _Blur * 7 * (1 - drops.z);
+
+						float fade = 1 - saturate(fwidth(i.uv) * 60);
 						//col = tex2D(_MainTex, i.uv + offs * _Distortion);
 						//col = tex2Dlod(_MainTex, float4(i.uv + drops.xy * _Distortion, 0, blur));
 						// col = tex2Dproj(_GrabTexture, i.grabUv);
+						
 						float2 projUv = i.grabUv.xy / i.grabUv.w;
-						col = tex2D(_GrabTexture, projUv);
+						projUv += drops.xy * _Distortion;
+						blur *= .01;
+
+						const float numSamples = 4;
+						float a = N21(i.uv) * 6.2831;
+						for (int i=0;i<numSamples; i++){
+							float2 offs = float2(sin(a), cos(a))*blur;
+							float d = frac(sin((i+1) * 546.) * 5424.);
+							d = sqrt(d);
+							offs *= d;
+							col += tex2D(_GrabTexture, projUv + offs);
+							a++;
+						}
+						col /= numSamples;
+						//col += fade;
+							
 					}
 
-					return col;
+					return col * .88;
 				}
 				ENDCG
 			}
