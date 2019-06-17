@@ -7,8 +7,7 @@ public class Flock : MonoBehaviour
 
     public FlockManager myManager;
     float speed;
-    int num = 0;
-    // Use this for initialization
+    // int num = 0;
     void Start()
     {
         speed = Random.Range(myManager.minSpeed,
@@ -16,15 +15,12 @@ public class Flock : MonoBehaviour
 
     }
 
-    // Update is called once per frame
     void Update()
-    {
+    {   
         transform.Translate(0, -Time.deltaTime * speed, 0);
-        num++;
-        if (num>300)
+        if (transform.position.y < -15)
         {
             transform.position = new Vector3(Random.Range(-4.0f,4.0f), 2.4f + Random.Range(0f, 6.0f), -3);
-            num = 0;
         }
         ApplyRules();
 
@@ -32,7 +28,7 @@ public class Flock : MonoBehaviour
     void ApplyRules()
     {
         GameObject[] gos;
-        gos = myManager.allFish;
+        gos = myManager.allRain;
 
         Vector3 vcentre = Vector3.zero;
         Vector3 vavoid = Vector3.zero;
