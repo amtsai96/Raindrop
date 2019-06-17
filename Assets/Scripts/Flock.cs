@@ -7,21 +7,28 @@ public class Flock : MonoBehaviour
 
     public FlockManager myManager;
     float speed;
-    // int num = 0;
+    float startTime;
     void Start()
     {
-        speed = Random.Range(myManager.minSpeed,
-                                myManager.maxSpeed);
-
+        speed = Random.Range(1.0f,5.0f);
+        startTime = Time.time;
     }
 
     void Update()
-    {   
-        transform.Translate(0, -Time.deltaTime * speed, 0);
-        if (transform.position.y < -15)
+    {
+        float t = Time.time;
+        float x = (Random.Range(0.03f, 0.08f) - .005f) * .8f;//sin(3 * w)*pow(sin(w), 6)*.45;
+        float w = transform.position.y * 0.2f;
+        x -= Mathf.Sin(1.03f*x) * .8f;
+        float y = -Mathf.Sin(t) - Mathf.Sin(t + Mathf.Sin(t+ Mathf.Sin(1.03f*t + 6.1234f)) * .5f) * .25f + 6.1234f;
+        transform.Translate(x, -Random.Range(0.001f, 0.008f) * Mathf.Abs(transform.position.y - y)*(Mathf.Pow(2, 10*(transform.localScale.x-0.12f))), 0);
+
+        if (transform.position.y < -3)
         {
-            transform.position = new Vector3(Random.Range(-4.0f,4.0f), 2.4f + Random.Range(0f, 6.0f), -3);
+            transform.position = new Vector3(Random.Range(-4.0f, 4.0f), 2.4f + Random.Range(0f, 8.0f), -3);
+            transform.localScale = new Vector3(0.12f, 0.15f, 0.1f);
         }
+        
         ApplyRules();
 
     }
@@ -46,9 +53,20 @@ public class Flock : MonoBehaviour
                     vcentre += go.transform.position;
                     groupSize++;
 
-                    if (nDistance < 1.0f)
+                    if (nDistance < 0.15f*(1+transform.localScale.x))
                     {
-                        vavoid = vavoid + (this.transform.position - go.transform.position);
+                        if (transform.localScale.x > go.transform.localScale.x)
+                        {
+                            go.transform.position = new Vector3(Random.Range(-4.0f, 4.0f), 2.4f + Random.Range(0f, 8.0f), -3);
+                            go.transform.localScale = new Vector3(0.12f, 0.15f, 0.1f);
+                            transform.localScale += new Vector3(0.01f, 0.03f, 0);
+
+                        }
+                        else {
+                            transform.position = new Vector3(Random.Range(-4.0f, 4.0f), 2.4f + Random.Range(0f, 8.0f), -3);
+                            transform.localScale = new Vector3(0.12f, 0.15f, 0.1f);
+                            go.transform.localScale += new Vector3(0.01f, 0.03f, 0);
+                        }                   
                     }
 
                     Flock anotherFlock = go.GetComponent<Flock>();
@@ -62,12 +80,13 @@ public class Flock : MonoBehaviour
             vcentre = vcentre / groupSize;
             speed = gSpeed / groupSize;
 
-            Vector3 direction = (vcentre + vavoid) - transform.position;
+            Vector3 direction = vcentre - transform.position;
             if (direction != Vector3.zero)
                 transform.rotation = Quaternion.Slerp(transform.rotation,
                                                       Quaternion.LookRotation(direction),
                                                       myManager.rotationSpeed * Time.deltaTime);
-
+            transform.localRotation = Quaternion.Euler(transform.rotation.x, transform.rotation.y, 0);
+            transform.position = new Vector3(transform.position.x, transform.position.y, -3);
         }
     }
 }
