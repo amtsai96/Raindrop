@@ -15,13 +15,15 @@ public class FlockManager : MonoBehaviour
     public float rotationSpeed;
 
     public GameObject fishPrefab;                    //公共變量
-    public int numFish = 50;                         // 
+    public int min_numFish = 70;
+    public int max_numFish = 120;
     public GameObject[] allFish;                     //檢查器窗口更改魚的數量。然後創建一個allFish數組。當他們被實例化時，他們會去，也就是魚的數量將進入allFish數組
     public Vector3 swimLimits = new Vector3(4, 6, 5);
 
     // Use this for initialization
     void Start()
     {
+        int numFish = Random.Range(min_numFish, max_numFish);
         allFish = new GameObject[numFish];
         for (int i = 0; i < numFish; i++)
         {
