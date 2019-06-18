@@ -564,7 +564,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1989265427}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.544, y: 0.14, z: -6}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 2, y: 2, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -586,9 +586,9 @@ MonoBehaviour:
   rotationSpeed: 0.51
   RainPrefab: {fileID: 3628859104097444678, guid: d0bb398a216f61741abff25604fc6627,
     type: 3}
-  numRain: 500
+  numRain: 300
   allRain: []
-  swimLimits: {x: 5, y: 5, z: 5}
+  swimLimits: {x: 2.5, y: 4, z: 0}
 --- !u!1001 &3629818674496600984
 PrefabInstance:
   m_ObjectHideFlags: 0
