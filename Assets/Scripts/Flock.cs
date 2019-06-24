@@ -51,23 +51,19 @@ public class Flock : MonoBehaviour
                 {
                     vcentre += go.transform.position;
                     groupSize++;
-
-                    if (nDistance < 0.15f*(1+transform.localScale.x))
+                    if (nDistance < 0.08f*( 1 + transform.localScale.x))
                     {
-                        float diffX = Mathf.Abs(transform.localScale.x - go.transform.localScale.x);
-                        float diffY = Mathf.Abs(transform.localScale.y - go.transform.localScale.y);
                         if (transform.localScale.x > go.transform.localScale.x)
                         {
                             go.transform.position = new Vector3(Random.Range(-4.0f, 4.0f), 2.4f + Random.Range(0f, 8.0f), -3);
                             go.transform.localScale = new Vector3(0.12f, 0.15f, 0.1f);
-                            transform.localScale += new Vector3((1+3*diffX)*0.01f, (1+3*diffY)*0.03f, 0);
-
+                            transform.localScale += new Vector3((1+3*(Mathf.Abs(go.transform.localScale.x - 0.1f)))*0.01f, (1+3*(Mathf.Abs(go.transform.localScale.y - 0.1f)))*0.03f, 0);
                         }
                         else {
                             transform.position = new Vector3(Random.Range(-4.0f, 4.0f), 2.4f + Random.Range(0f, 8.0f), -3);
                             transform.localScale = new Vector3(0.12f, 0.15f, 0.1f);
-                            go.transform.localScale += new Vector3((1+3*diffX)*0.01f, (1+3*diffY)*0.03f, 0);
-                        }                   
+                            go.transform.localScale += new Vector3((1+3*(Mathf.Abs(transform.localScale.x - 0.1f)))*0.01f, (1+3*(Mathf.Abs(transform.localScale.y - 0.1f)))*0.03f, 0);
+                        }
                     }
 
                     Flock anotherFlock = go.GetComponent<Flock>();
